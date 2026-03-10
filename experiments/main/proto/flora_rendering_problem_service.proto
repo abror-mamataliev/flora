@@ -17,13 +17,24 @@ message Empty {}
 message RenderingKnobs {
   optional knob.RangeKnob resolutionX = 1;
   optional knob.RangeKnob resolutionY = 2;
+  optional knob.RangeKnob antiAliasMin = 3;
+  optional knob.RangeKnob antiAliasMax = 4;
+  optional knob.RangeKnob ambientOcclusionSamples = 5;
+  repeated string filter = 6;
 }
 
 message RenderingConfiguration {
   optional int64 resolutionX = 1;
   optional int64 resolutionY = 2;
+  optional int64 antiAliasMin = 3;
+  optional int64 antiAliasMax = 4;
+  optional int64 ambientOcclusionSamples = 5;
+  optional string filter = 6;
 }
 
 message RenderingScore {
   optional double energy = 1;
+  optional double runtime = 2;
+  optional double mse = 3;
+  optional double piqe = 4;
 }
