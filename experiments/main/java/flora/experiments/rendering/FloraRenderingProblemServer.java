@@ -3,7 +3,6 @@ package flora.experiments.rendering;
 import static flora.util.LoggerUtil.getLogger;
 
 import flora.MeteringMachine;
-import java.util.Map;
 import flora.contrib.ears.FloraProblem;
 import flora.knob.RangeKnob;
 import io.grpc.Grpc;
@@ -11,6 +10,8 @@ import io.grpc.InsecureServerCredentials;
 import io.grpc.Server;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Logger;
@@ -23,6 +24,15 @@ public class FloraRenderingProblemServer {
 
   private static final Integer PORT = Integer.valueOf(8980);
   private static final Path STATE_FILE_PATH = Path.of("/tmp", "state.json");
+  private static final RenderingKnobs DEFAULT_KNOBS =
+      RenderingKnobs.newBuilder()
+          .setResolutionX(RangeKnob.newBuilder().setStart(100).setEnd(1000).setStep(50))
+          .setResolutionY(RangeKnob.newBuilder().setStart(100).setEnd(1000).setStep(50))
+          .setAntiAliasMin(RangeKnob.newBuilder().setStart(-2).setEnd(2).setStep(1))
+          .setAntiAliasMax(RangeKnob.newBuilder().setStart(-2).setEnd(2).setStep(1))
+          .setAmbientOcclusionSamples(RangeKnob.newBuilder().setStart(0).setEnd(96).setStep(1))
+          .addAllFilter(List.of("BOX", "GAUSSIAN", "BLACKMAN_HARRIS"))
+          .build();
 
   /** Spins up the server. */
   public static void main(String[] args) throws Exception {
@@ -65,24 +75,15 @@ public class FloraRenderingProblemServer {
                 new FloraProblem<RenderingKnobs, RenderingConfiguration, RenderingWorkUnit>(
                     "flora-rendering-problem-server",
                     new RenderingWorkFactory(
-                        RenderingKnobs.newBuilder()
-                            .setResolutionX(
-                                RangeKnob.newBuilder().setStart(100).setEnd(1000).setStep(50))
-                            .setResolutionY(
-                                RangeKnob.newBuilder().setStart(100).setEnd(1000).setStep(50))
-                            .build(),
-                        serverImpl.nextConfiguration),
+                        DEFAULT_KNOBS, serverImpl.nextConfiguration, serverImpl::fetchLastScore),
                     new MeteringMachine(
                         Map.of(
                             "energy",
                             new RenderingScoreMachine.RenderingScoreMeter(
-                                () -> {
-                                  try {
-                                    return serverImpl.lastScore.take().getEnergy();
-                                  } catch (Exception e) {
-                                    return 0.0;
-                                  }
-                                })))),
+                                () -> serverImpl.currentScore.get().get().getEnergy()),
+                            "runtime",
+                            new RenderingScoreMachine.RenderingScoreMeter(
+                                () -> serverImpl.currentScore.get().get().getRuntime())))),
                 StopCriterion.EVALUATIONS,
                 100000,
                 0,
