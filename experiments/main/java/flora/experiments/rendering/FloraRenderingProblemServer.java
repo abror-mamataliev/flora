@@ -24,15 +24,33 @@ public class FloraRenderingProblemServer {
 
   private static final Integer PORT = Integer.valueOf(8980);
   private static final Path STATE_FILE_PATH = Path.of("/tmp", "state.json");
+  private static final Path RESULT_FILE_PATH = Path.of("/tmp", "result.json");
   private static final RenderingKnobs DEFAULT_KNOBS =
       RenderingKnobs.newBuilder()
           .setResolutionX(RangeKnob.newBuilder().setStart(100).setEnd(1000).setStep(50))
           .setResolutionY(RangeKnob.newBuilder().setStart(100).setEnd(1000).setStep(50))
-          .setAntiAliasMin(RangeKnob.newBuilder().setStart(-2).setEnd(2).setStep(1))
-          .setAntiAliasMax(RangeKnob.newBuilder().setStart(-2).setEnd(2).setStep(1))
-          .setAmbientOcclusionSamples(RangeKnob.newBuilder().setStart(0).setEnd(96).setStep(1))
+          .setAaMin(RangeKnob.newBuilder().setStart(-2).setEnd(2).setStep(1))
+          .setAaMax(RangeKnob.newBuilder().setStart(-2).setEnd(2).setStep(1))
+          .setAoSamples(RangeKnob.newBuilder().setStart(0).setEnd(96).setStep(1))
           .addAllFilter(List.of("BOX", "GAUSSIAN", "BLACKMAN_HARRIS"))
           .build();
+
+  private static final MeteringMachine createMeters(FloraRenderingProblemServerImpl serverImpl) {
+    return new MeteringMachine(
+        Map.of(
+            "energy",
+            new RenderingScoreMachine.RenderingScoreMeter(
+                () -> serverImpl.currentScore.get().get().getEnergy()),
+            "runtime",
+            new RenderingScoreMachine.RenderingScoreMeter(
+                () -> serverImpl.currentScore.get().get().getRuntime()),
+            "piqe",
+            new RenderingScoreMachine.RenderingScoreMeter(
+                () -> serverImpl.currentScore.get().get().getPiqe()),
+            "mse",
+            new RenderingScoreMachine.RenderingScoreMeter(
+                () -> serverImpl.currentScore.get().get().getMse())));
+  }
 
   /** Spins up the server. */
   public static void main(String[] args) throws Exception {
@@ -45,6 +63,8 @@ public class FloraRenderingProblemServer {
             .build();
     server.start();
     final AtomicReference<D_NSGAII> nsga = new AtomicReference<>();
+    final AtomicReference<FloraProblem<RenderingKnobs, RenderingConfiguration, RenderingWorkUnit>>
+        results = new AtomicReference<>();
     Runtime.getRuntime()
         .addShutdownHook(
             new Thread("flora-rendering-problem-server-shutdown") {
@@ -56,7 +76,9 @@ public class FloraRenderingProblemServer {
                     server.shutdown().awaitTermination(30, TimeUnit.SECONDS);
                   }
                   nsga.get().saveState(STATE_FILE_PATH.toString());
-                } catch (InterruptedException e) {
+                  System.out.println("writing result to" + RESULT_FILE_PATH);
+                  JsonSceneUtil.writeResults(results.get(), RESULT_FILE_PATH);
+                } catch (Exception e) {
                   e.printStackTrace(System.err);
                 }
                 System.out.println("server shutdown...");
@@ -70,25 +92,18 @@ public class FloraRenderingProblemServer {
         if (Files.exists(STATE_FILE_PATH)) {
           nsga1.loadState(STATE_FILE_PATH.toString(), false);
         }
-        nsga1.execute(
-            new Task<>(
-                new FloraProblem<RenderingKnobs, RenderingConfiguration, RenderingWorkUnit>(
-                    "flora-rendering-problem-server",
-                    new RenderingWorkFactory(
-                        DEFAULT_KNOBS, serverImpl.nextConfiguration, serverImpl::fetchLastScore),
-                    new MeteringMachine(
-                        Map.of(
-                            "energy",
-                            new RenderingScoreMachine.RenderingScoreMeter(
-                                () -> serverImpl.currentScore.get().get().getEnergy()),
-                            "runtime",
-                            new RenderingScoreMachine.RenderingScoreMeter(
-                                () -> serverImpl.currentScore.get().get().getRuntime())))),
-                StopCriterion.EVALUATIONS,
-                100000,
-                0,
-                0));
+        final FloraProblem<RenderingKnobs, RenderingConfiguration, RenderingWorkUnit> problem =
+            new FloraProblem<>(
+                "flora-rendering-problem-server",
+                new RenderingWorkFactory(
+                    DEFAULT_KNOBS, serverImpl.nextConfiguration, serverImpl::fetchLastScore),
+                createMeters(serverImpl));
+        results.set(problem);
+        nsga1.execute(new Task<>(problem, StopCriterion.EVALUATIONS, 500, 0, 0));
+        logger.info(String.format("writing result to %s", RESULT_FILE_PATH));
+        JsonSceneUtil.writeResults(problem, RESULT_FILE_PATH);
         nsga1.saveState(STATE_FILE_PATH.toString());
+        break;
       }
     } catch (Exception e) {
       logger.warning(String.format("something failed: %s", e));

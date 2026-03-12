@@ -25,7 +25,7 @@ _sym_db = _symbol_database.Default()
 import knob_pb2 as knob__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n%flora_rendering_problem_service.proto\x12\x1b\x66lora.experiments.rendering\x1a\nknob.proto\"\x07\n\x05\x45mpty\"\x81\x03\n\x0eRenderingKnobs\x12/\n\x0bresolutionX\x18\x01 \x01(\x0b\x32\x15.flora.knob.RangeKnobH\x00\x88\x01\x01\x12/\n\x0bresolutionY\x18\x02 \x01(\x0b\x32\x15.flora.knob.RangeKnobH\x01\x88\x01\x01\x12\x30\n\x0c\x61ntiAliasMin\x18\x03 \x01(\x0b\x32\x15.flora.knob.RangeKnobH\x02\x88\x01\x01\x12\x30\n\x0c\x61ntiAliasMax\x18\x04 \x01(\x0b\x32\x15.flora.knob.RangeKnobH\x03\x88\x01\x01\x12;\n\x17\x61mbientOcclusionSamples\x18\x05 \x01(\x0b\x32\x15.flora.knob.RangeKnobH\x04\x88\x01\x01\x12\x0e\n\x06\x66ilter\x18\x06 \x03(\tB\x0e\n\x0c_resolutionXB\x0e\n\x0c_resolutionYB\x0f\n\r_antiAliasMinB\x0f\n\r_antiAliasMaxB\x1a\n\x18_ambientOcclusionSamples\"\xa6\x02\n\x16RenderingConfiguration\x12\x18\n\x0bresolutionX\x18\x01 \x01(\x03H\x00\x88\x01\x01\x12\x18\n\x0bresolutionY\x18\x02 \x01(\x03H\x01\x88\x01\x01\x12\x19\n\x0c\x61ntiAliasMin\x18\x03 \x01(\x03H\x02\x88\x01\x01\x12\x19\n\x0c\x61ntiAliasMax\x18\x04 \x01(\x03H\x03\x88\x01\x01\x12$\n\x17\x61mbientOcclusionSamples\x18\x05 \x01(\x03H\x04\x88\x01\x01\x12\x13\n\x06\x66ilter\x18\x06 \x01(\tH\x05\x88\x01\x01\x42\x0e\n\x0c_resolutionXB\x0e\n\x0c_resolutionYB\x0f\n\r_antiAliasMinB\x0f\n\r_antiAliasMaxB\x1a\n\x18_ambientOcclusionSamplesB\t\n\x07_filter\"\x88\x01\n\x0eRenderingScore\x12\x13\n\x06\x65nergy\x18\x01 \x01(\x01H\x00\x88\x01\x01\x12\x14\n\x07runtime\x18\x02 \x01(\x01H\x01\x88\x01\x01\x12\x10\n\x03mse\x18\x03 \x01(\x01H\x02\x88\x01\x01\x12\x11\n\x04piqe\x18\x04 \x01(\x01H\x03\x88\x01\x01\x42\t\n\x07_energyB\n\n\x08_runtimeB\x06\n\x04_mseB\x07\n\x05_piqe2\xed\x01\n\x1c\x46loraRenderingProblemService\x12n\n\x11NextConfiguration\x12\".flora.experiments.rendering.Empty\x1a\x33.flora.experiments.rendering.RenderingConfiguration\"\x00\x12]\n\x08\x45valuate\x12+.flora.experiments.rendering.RenderingScore\x1a\".flora.experiments.rendering.Empty\"\x00\x42\x1f\n\x1b\x66lora.experiments.renderingP\x01\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n%flora_rendering_problem_service.proto\x12\x1b\x66lora.experiments.rendering\x1a\nknob.proto\"\x07\n\x05\x45mpty\"\xd3\x02\n\x0eRenderingKnobs\x12\x30\n\x0cresolution_x\x18\x01 \x01(\x0b\x32\x15.flora.knob.RangeKnobH\x00\x88\x01\x01\x12\x30\n\x0cresolution_y\x18\x02 \x01(\x0b\x32\x15.flora.knob.RangeKnobH\x01\x88\x01\x01\x12*\n\x06\x61\x61_min\x18\x03 \x01(\x0b\x32\x15.flora.knob.RangeKnobH\x02\x88\x01\x01\x12*\n\x06\x61\x61_max\x18\x04 \x01(\x0b\x32\x15.flora.knob.RangeKnobH\x03\x88\x01\x01\x12.\n\nao_samples\x18\x05 \x01(\x0b\x32\x15.flora.knob.RangeKnobH\x04\x88\x01\x01\x12\x0e\n\x06\x66ilter\x18\x06 \x03(\tB\x0f\n\r_resolution_xB\x0f\n\r_resolution_yB\t\n\x07_aa_minB\t\n\x07_aa_maxB\r\n\x0b_ao_samples\"\xf8\x01\n\x16RenderingConfiguration\x12\x19\n\x0cresolution_x\x18\x01 \x01(\x03H\x00\x88\x01\x01\x12\x19\n\x0cresolution_y\x18\x02 \x01(\x03H\x01\x88\x01\x01\x12\x13\n\x06\x61\x61_min\x18\x03 \x01(\x03H\x02\x88\x01\x01\x12\x13\n\x06\x61\x61_max\x18\x04 \x01(\x03H\x03\x88\x01\x01\x12\x17\n\nao_samples\x18\x05 \x01(\x03H\x04\x88\x01\x01\x12\x13\n\x06\x66ilter\x18\x06 \x01(\tH\x05\x88\x01\x01\x42\x0f\n\r_resolution_xB\x0f\n\r_resolution_yB\t\n\x07_aa_minB\t\n\x07_aa_maxB\r\n\x0b_ao_samplesB\t\n\x07_filter\"\x88\x01\n\x0eRenderingScore\x12\x13\n\x06\x65nergy\x18\x01 \x01(\x01H\x00\x88\x01\x01\x12\x14\n\x07runtime\x18\x02 \x01(\x01H\x01\x88\x01\x01\x12\x10\n\x03mse\x18\x03 \x01(\x01H\x02\x88\x01\x01\x12\x11\n\x04piqe\x18\x04 \x01(\x01H\x03\x88\x01\x01\x42\t\n\x07_energyB\n\n\x08_runtimeB\x06\n\x04_mseB\x07\n\x05_piqe2\xed\x01\n\x1c\x46loraRenderingProblemService\x12n\n\x11NextConfiguration\x12\".flora.experiments.rendering.Empty\x1a\x33.flora.experiments.rendering.RenderingConfiguration\"\x00\x12]\n\x08\x45valuate\x12+.flora.experiments.rendering.RenderingScore\x1a\".flora.experiments.rendering.Empty\"\x00\x42\x1f\n\x1b\x66lora.experiments.renderingP\x01\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -36,11 +36,11 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_EMPTY']._serialized_start=82
   _globals['_EMPTY']._serialized_end=89
   _globals['_RENDERINGKNOBS']._serialized_start=92
-  _globals['_RENDERINGKNOBS']._serialized_end=477
-  _globals['_RENDERINGCONFIGURATION']._serialized_start=480
-  _globals['_RENDERINGCONFIGURATION']._serialized_end=774
-  _globals['_RENDERINGSCORE']._serialized_start=777
-  _globals['_RENDERINGSCORE']._serialized_end=913
-  _globals['_FLORARENDERINGPROBLEMSERVICE']._serialized_start=916
-  _globals['_FLORARENDERINGPROBLEMSERVICE']._serialized_end=1153
+  _globals['_RENDERINGKNOBS']._serialized_end=431
+  _globals['_RENDERINGCONFIGURATION']._serialized_start=434
+  _globals['_RENDERINGCONFIGURATION']._serialized_end=682
+  _globals['_RENDERINGSCORE']._serialized_start=685
+  _globals['_RENDERINGSCORE']._serialized_end=821
+  _globals['_FLORARENDERINGPROBLEMSERVICE']._serialized_start=824
+  _globals['_FLORARENDERINGPROBLEMSERVICE']._serialized_end=1061
 # @@protoc_insertion_point(module_scope)

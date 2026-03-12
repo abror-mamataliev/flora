@@ -23,9 +23,9 @@ public final class RenderingWorkFactory
           KnobUtils.getConfigurationCount(knobs.getResolutionX()),
           // Sticking with square images
           // KnobUtils.getConfigurationCount(knobs.getResolutionY()),
-          KnobUtils.getConfigurationCount(knobs.getAntiAliasMin()),
-          KnobUtils.getConfigurationCount(knobs.getAntiAliasMax()),
-          KnobUtils.getConfigurationCount(knobs.getAmbientOcclusionSamples()),
+          KnobUtils.getConfigurationCount(knobs.getAaMin()),
+          KnobUtils.getConfigurationCount(knobs.getAaMax()),
+          KnobUtils.getConfigurationCount(knobs.getAoSamples()),
           knobs.getFilterCount()
         };
     this.barrier = barrier;
@@ -60,11 +60,11 @@ public final class RenderingWorkFactory
         knobs,
         RenderingConfiguration.newBuilder()
             .setResolutionX(KnobUtils.getRangeValue(configuration[0], knobs.getResolutionX()))
+            // Sticking with square images for now
             .setResolutionY(KnobUtils.getRangeValue(configuration[0], knobs.getResolutionY()))
-            .setAntiAliasMin(KnobUtils.getRangeValue(configuration[1], knobs.getAntiAliasMin()))
-            .setAntiAliasMax(KnobUtils.getRangeValue(configuration[2], knobs.getAntiAliasMax()))
-            .setAmbientOcclusionSamples(
-                KnobUtils.getRangeValue(configuration[3], knobs.getAmbientOcclusionSamples()))
+            .setAaMin(KnobUtils.getRangeValue(configuration[1], knobs.getAaMin()))
+            .setAaMax(KnobUtils.getRangeValue(configuration[2], knobs.getAaMax()))
+            .setAoSamples(KnobUtils.getRangeValue(configuration[3], knobs.getAoSamples()))
             .setFilter(knobs.getFilterList().get(configuration[4]))
             .build(),
         nextConfiguration,
@@ -79,8 +79,8 @@ public final class RenderingWorkFactory
   @Override
   public int[] fixConfiguration(int[] configuration) {
     // check that anti-aliasing (knobs 3 and 4) are properly bounded
-    while (KnobUtils.getRangeValue(configuration[1], knobs.getAntiAliasMin())
-        > KnobUtils.getRangeValue(configuration[2], knobs.getAntiAliasMax())) {
+    while (KnobUtils.getRangeValue(configuration[1], knobs.getAaMin())
+        > KnobUtils.getRangeValue(configuration[2], knobs.getAaMax())) {
       configuration[2]++;
     }
     return configuration;
@@ -92,8 +92,8 @@ public final class RenderingWorkFactory
     int resolution = random.nextInt(configurationSize[0]);
     int aaMin = random.nextInt(configurationSize[1]);
     int aaMax = random.nextInt(configurationSize[2]);
-    while (KnobUtils.getRangeValue(aaMin, knobs.getAntiAliasMin())
-        > KnobUtils.getRangeValue(aaMax, knobs.getAntiAliasMax())) {
+    while (KnobUtils.getRangeValue(aaMin, knobs.getAaMin())
+        > KnobUtils.getRangeValue(aaMax, knobs.getAaMax())) {
       aaMin = random.nextInt(configurationSize[1]);
       aaMax = random.nextInt(configurationSize[2]);
     }

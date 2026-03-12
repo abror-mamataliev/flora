@@ -24,7 +24,10 @@ class FloraRenderingProblemServerImpl
   public void nextConfiguration(
       Empty request, StreamObserver<RenderingConfiguration> resultObserver) {
     try {
-      resultObserver.onNext(nextConfiguration.take());
+      logger.info("taking next configuration");
+      RenderingConfiguration configuration = nextConfiguration.take();
+      logger.info(String.format("sending configuration %s", configuration));
+      resultObserver.onNext(configuration);
     } catch (Exception e) {
       logger.info("failed to get a new configuration");
     }
@@ -34,6 +37,7 @@ class FloraRenderingProblemServerImpl
   @Override
   public void evaluate(RenderingScore request, StreamObserver<Empty> resultObserver) {
     currentScore.set(Optional.empty());
+    logger.info(String.format("receiving new score %s", request));
     lastScore.add(request);
     resultObserver.onNext(Empty.getDefaultInstance());
     resultObserver.onCompleted();
@@ -41,13 +45,11 @@ class FloraRenderingProblemServerImpl
 
   synchronized void fetchLastScore() {
     try {
-      // if (currentScore.get().isEmpty()) {
+      logger.info("waiting for next score");
       currentScore.set(Optional.empty());
       currentScore.set(Optional.of(lastScore.take()));
-      // }
-      // return currentScore.get().get();
     } catch (Exception e) {
-      // return RenderingScore.getDefaultInstance();
+      currentScore.set(Optional.empty());
     }
   }
 }

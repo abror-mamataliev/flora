@@ -8,17 +8,18 @@ java_library(
         "//contrib/main/java/flora/contrib/ears",
         "//src/main/java/flora",
         "//src/main/java/flora/util",
+        "//src/main/java/flora/util:json",
+        "//src/main/java/flora/knob",
+        "//src/main/java/flora/knob/util",
+        "//src/main/java/flora/knob/util:json",
         "//experiments/main/proto:knob_java_protos",
         "//experiments/main/proto:flora_rendering_problem_service_java_protos",
         "//experiments/main/proto:flora_rendering_problem_service_java_grpc",
         "@ears//jar",
         "@grpc-java//api",
         "@grpc-java//stub",
+        "@maven//:org_json_json",
     ],
-    # exports = [
-    #     "//experiments/main/proto:flora_rendering_problem_service_java_protos",
-    #     "//experiments/main/proto:flora_rendering_problem_service_java_grpc",
-    # ]
 )
 
 java_binary(
