@@ -10,16 +10,24 @@ public final class RenderingWorkFactory
   private final RenderingKnobs knobs;
   private final BlockingQueue<RenderingConfiguration> nextConfiguration;
   private final int[] configurationSize;
+  private final Runnable barrier;
 
   public RenderingWorkFactory(
-      RenderingKnobs knobs, BlockingQueue<RenderingConfiguration> nextConfiguration) {
+      RenderingKnobs knobs,
+      BlockingQueue<RenderingConfiguration> nextConfiguration,
+      Runnable barrier) {
     this.knobs = knobs;
     this.nextConfiguration = nextConfiguration;
     this.configurationSize =
         new int[] {
           KnobUtils.getConfigurationCount(knobs.getResolutionX()),
-          KnobUtils.getConfigurationCount(knobs.getResolutionY()),
+          // Sticking with square images
+          // KnobUtils.getConfigurationCount(knobs.getResolutionY()),
+          KnobUtils.getConfigurationCount(knobs.getAaSamples()),
+          KnobUtils.getConfigurationCount(knobs.getAoSamples()),
+          knobs.getFilterCount()
         };
+    this.barrier = barrier;
   }
 
   @Override
@@ -30,7 +38,7 @@ public final class RenderingWorkFactory
   /** The number of knobs. */
   @Override
   public int knobCount() {
-    return 2;
+    return configurationSize.length;
   }
 
   /** The number of configurations each knob has. */
@@ -51,18 +59,25 @@ public final class RenderingWorkFactory
         knobs,
         RenderingConfiguration.newBuilder()
             .setResolutionX(KnobUtils.getRangeValue(configuration[0], knobs.getResolutionX()))
-            .setResolutionY(KnobUtils.getRangeValue(configuration[1], knobs.getResolutionY()))
+            // Sticking with square images for now
+            .setResolutionY(KnobUtils.getRangeValue(configuration[0], knobs.getResolutionY()))
+            .setAaSamples(KnobUtils.getRangeValue(configuration[1], knobs.getAaSamples()))
+            .setAoSamples(KnobUtils.getRangeValue(configuration[2], knobs.getAoSamples()))
+            .setFilter(knobs.getFilterList().get(configuration[3]))
             .build(),
-        nextConfiguration);
+        nextConfiguration,
+        barrier);
   }
 
   @Override
   public boolean isValid(int[] configuration) {
+    System.out.println(Arrays.toString(configuration));
     return true;
   }
 
   @Override
   public int[] fixConfiguration(int[] configuration) {
+    System.out.println(Arrays.toString(configuration));
     return configuration;
   }
 
@@ -70,7 +85,10 @@ public final class RenderingWorkFactory
   public int[] randomConfiguration() {
     ThreadLocalRandom random = ThreadLocalRandom.current();
     return new int[] {
-      random.nextInt(configurationSize[0] + 1), random.nextInt(configurationSize[1] + 1),
+      random.nextInt(configurationSize[0]),
+      random.nextInt(configurationSize[1]),
+      random.nextInt(configurationSize[2]),
+      random.nextInt(configurationSize[3])
     };
   }
 }

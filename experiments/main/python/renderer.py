@@ -5,30 +5,15 @@ import sys
 from argparse import ArgumentParser
 
 import bpy
-import grpc
 
 from jcarbon.report import to_dataframe
 from jcarbon.nvml.sampler import NvmlSampler
 
-from flora_rendering_problem_service_pb2 import Empty, RenderingScore
-from flora_rendering_problem_service_pb2_grpc import FloraRenderingProblemServiceStub
+from collector import DataCollector
+from flora_client import FloraRenderingProblemClient
 
 
 ENERGY_SIGNAL = 'nvmlDeviceGetTotalEnergyConsumption'
-
-
-class FloraRenderingClient:
-    def __init__(self, addr):
-        self.stub = FloraRenderingProblemServiceStub(
-            grpc.insecure_channel(addr))
-
-    def next_configuration(self):
-        return self.stub.NextConfiguration(Empty())
-
-    def evaluate(self, energy):
-        score = RenderingScore()
-        score.energy = energy
-        return self.stub.Evaluate(score)
 
 
 def create_scene(scene_path):
@@ -107,11 +92,13 @@ def main():
     args = parse_args()
 
     scene_name = os.path.splitext(os.path.basename(args.scene))[0]
-    scene_path = os.path.join(os.path.dirname(args.scene), f"{scene_name}.blend")
+    scene_path = os.path.join(os.path.dirname(
+        args.scene), f"{scene_name}.blend")
     scene = create_scene(scene_path)
     output = create_output_dir(args.output, scene_name, scene)
 
-    client = FloraRenderingClient(f'localhost:{args.port}')
+    client = FloraRenderingProblemClient(f'localhost:{args.port}')
+    data_collector = DataCollector()
     i = 0
     while True:
         config = client.next_configuration()
@@ -147,11 +134,23 @@ def main():
         sampler.sample()
         report = to_dataframe(sampler.create_report()).to_frame().reset_index()
         energy = report[report.source == ENERGY_SIGNAL].value.sum()
+        scores = {
+            'energy': energy,
+            # 'runtime': runtime,
+            # 'piqe': piqe
+        }
+        data_collector.add_record(
+            i,
+            config,
+            scores
+        )
 
-        print(f"consumed {energy:.4f} J")
-        client.evaluate(energy)
+        for score in scores:
+            print(f"{score}:{scores[score]}")
+        client.evaluate(**scores)
 
         i += 1
+    data_collector.write_data(os.path.join(output, 'results.json'))
 
 
 if __name__ == '__main__':

@@ -3,19 +3,21 @@ package flora.experiments.rendering;
 import flora.WorkUnit;
 import java.util.concurrent.BlockingQueue;
 
-public final class RenderingWorkUnit
-    implements WorkUnit<RenderingKnobs, RenderingConfiguration> {
+public final class RenderingWorkUnit implements WorkUnit<RenderingKnobs, RenderingConfiguration> {
   private final RenderingKnobs knobs;
   private final RenderingConfiguration configuration;
   private final BlockingQueue<RenderingConfiguration> nextConfiguration;
+  private final Runnable barrier;
 
   RenderingWorkUnit(
       RenderingKnobs knobs,
       RenderingConfiguration configuration,
-      BlockingQueue<RenderingConfiguration> nextConfiguration) {
+      BlockingQueue<RenderingConfiguration> nextConfiguration,
+      Runnable barrier) {
     this.knobs = knobs;
     this.configuration = configuration;
     this.nextConfiguration = nextConfiguration;
+    this.barrier = barrier;
   }
 
   @Override
@@ -31,5 +33,6 @@ public final class RenderingWorkUnit
   @Override
   public void run() {
     nextConfiguration.add(configuration);
+    barrier.run();
   }
 }

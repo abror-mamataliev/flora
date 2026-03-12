@@ -15,15 +15,35 @@ service FloraRenderingProblemService {
 message Empty {}
 
 message RenderingKnobs {
-  optional knob.RangeKnob resolutionX = 1;
-  optional knob.RangeKnob resolutionY = 2;
+  // Image width.
+  optional knob.RangeKnob resolution_x = 1;
+  // Image height.
+  optional knob.RangeKnob resolution_y = 2;
+  // Anti-aliasing minimum
+  optional knob.RangeKnob aa_samples = 3;
+  // Ambient occlusion samples
+  optional knob.RangeKnob ao_samples = 4;
+  // Rendering filter
+  repeated string filter = 5;
 }
 
 message RenderingConfiguration {
-  optional int64 resolutionX = 1;
-  optional int64 resolutionY = 2;
+  // Image width.
+  optional int64 resolution_x = 1;
+  // Image height.
+  optional int64 resolution_y = 2;
+  // Anti-aliasing minimum
+  // Anti-aliasing minimum
+  optional int64 aa_samples = 3;
+  // Ambient occlusion samples
+  optional int64 ao_samples = 4;
+  // Rendering filter
+  optional string filter = 5;
 }
 
 message RenderingScore {
   optional double energy = 1;
+  optional double runtime = 2;
+  optional double mse = 3;
+  optional double piqe = 4;
 }

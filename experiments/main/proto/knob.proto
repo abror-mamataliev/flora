@@ -10,3 +10,11 @@ message RangeKnob {
   optional int32 end = 2;
   optional int32 step = 3;
 }
+
+message IntListKnob {
+  repeated int32 values = 1;
+}
+
+message StringListKnob {
+  repeated string values = 1;
+}
