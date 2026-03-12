@@ -9,11 +9,10 @@ import org.json.JSONObject;
 public final class JsonSceneUtil {
   public static JSONObject toJson(RenderingConfiguration configuration) {
     JSONObject jsonObject = new JSONObject();
-    jsonObject.put("width", configuration.getResolutionX());
-    jsonObject.put("height", configuration.getResolutionY());
-    jsonObject.put("aaMin", configuration.getAaMin());
-    jsonObject.put("aaMax", configuration.getAaMax());
-    jsonObject.put("aoSamples", configuration.getAoSamples());
+    jsonObject.put("resolution_x", configuration.getResolutionX());
+    jsonObject.put("resolution_y", configuration.getResolutionY());
+    jsonObject.put("aa_samples", configuration.getAaSamples());
+    jsonObject.put("ao_samples", configuration.getAoSamples());
     jsonObject.put("filter", configuration.getFilter());
     return jsonObject;
   }

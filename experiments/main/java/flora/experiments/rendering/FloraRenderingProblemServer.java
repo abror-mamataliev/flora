@@ -29,8 +29,7 @@ public class FloraRenderingProblemServer {
       RenderingKnobs.newBuilder()
           .setResolutionX(RangeKnob.newBuilder().setStart(100).setEnd(1000).setStep(50))
           .setResolutionY(RangeKnob.newBuilder().setStart(100).setEnd(1000).setStep(50))
-          .setAaMin(RangeKnob.newBuilder().setStart(-2).setEnd(2).setStep(1))
-          .setAaMax(RangeKnob.newBuilder().setStart(-2).setEnd(2).setStep(1))
+          .setAaSamples(RangeKnob.newBuilder().setStart(-2).setEnd(2).setStep(1))
           .setAoSamples(RangeKnob.newBuilder().setStart(0).setEnd(96).setStep(1))
           .addAllFilter(List.of("BOX", "GAUSSIAN", "BLACKMAN_HARRIS"))
           .build();

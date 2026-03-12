@@ -12,36 +12,32 @@ class Empty(_message.Message):
     def __init__(self) -> None: ...
 
 class RenderingKnobs(_message.Message):
-    __slots__ = ("resolution_x", "resolution_y", "aa_min", "aa_max", "ao_samples", "filter")
+    __slots__ = ("resolution_x", "resolution_y", "aa_samples", "ao_samples", "filter")
     RESOLUTION_X_FIELD_NUMBER: _ClassVar[int]
     RESOLUTION_Y_FIELD_NUMBER: _ClassVar[int]
-    AA_MIN_FIELD_NUMBER: _ClassVar[int]
-    AA_MAX_FIELD_NUMBER: _ClassVar[int]
+    AA_SAMPLES_FIELD_NUMBER: _ClassVar[int]
     AO_SAMPLES_FIELD_NUMBER: _ClassVar[int]
     FILTER_FIELD_NUMBER: _ClassVar[int]
     resolution_x: _knob_pb2.RangeKnob
     resolution_y: _knob_pb2.RangeKnob
-    aa_min: _knob_pb2.RangeKnob
-    aa_max: _knob_pb2.RangeKnob
+    aa_samples: _knob_pb2.RangeKnob
     ao_samples: _knob_pb2.RangeKnob
     filter: _containers.RepeatedScalarFieldContainer[str]
-    def __init__(self, resolution_x: _Optional[_Union[_knob_pb2.RangeKnob, _Mapping]] = ..., resolution_y: _Optional[_Union[_knob_pb2.RangeKnob, _Mapping]] = ..., aa_min: _Optional[_Union[_knob_pb2.RangeKnob, _Mapping]] = ..., aa_max: _Optional[_Union[_knob_pb2.RangeKnob, _Mapping]] = ..., ao_samples: _Optional[_Union[_knob_pb2.RangeKnob, _Mapping]] = ..., filter: _Optional[_Iterable[str]] = ...) -> None: ...
+    def __init__(self, resolution_x: _Optional[_Union[_knob_pb2.RangeKnob, _Mapping]] = ..., resolution_y: _Optional[_Union[_knob_pb2.RangeKnob, _Mapping]] = ..., aa_samples: _Optional[_Union[_knob_pb2.RangeKnob, _Mapping]] = ..., ao_samples: _Optional[_Union[_knob_pb2.RangeKnob, _Mapping]] = ..., filter: _Optional[_Iterable[str]] = ...) -> None: ...
 
 class RenderingConfiguration(_message.Message):
-    __slots__ = ("resolution_x", "resolution_y", "aa_min", "aa_max", "ao_samples", "filter")
+    __slots__ = ("resolution_x", "resolution_y", "aa_samples", "ao_samples", "filter")
     RESOLUTION_X_FIELD_NUMBER: _ClassVar[int]
     RESOLUTION_Y_FIELD_NUMBER: _ClassVar[int]
-    AA_MIN_FIELD_NUMBER: _ClassVar[int]
-    AA_MAX_FIELD_NUMBER: _ClassVar[int]
+    AA_SAMPLES_FIELD_NUMBER: _ClassVar[int]
     AO_SAMPLES_FIELD_NUMBER: _ClassVar[int]
     FILTER_FIELD_NUMBER: _ClassVar[int]
     resolution_x: int
     resolution_y: int
-    aa_min: int
-    aa_max: int
+    aa_samples: int
     ao_samples: int
     filter: str
-    def __init__(self, resolution_x: _Optional[int] = ..., resolution_y: _Optional[int] = ..., aa_min: _Optional[int] = ..., aa_max: _Optional[int] = ..., ao_samples: _Optional[int] = ..., filter: _Optional[str] = ...) -> None: ...
+    def __init__(self, resolution_x: _Optional[int] = ..., resolution_y: _Optional[int] = ..., aa_samples: _Optional[int] = ..., ao_samples: _Optional[int] = ..., filter: _Optional[str] = ...) -> None: ...
 
 class RenderingScore(_message.Message):
     __slots__ = ("energy", "runtime", "mse", "piqe")
