@@ -40,7 +40,7 @@ def create_scene(scene_path):
     prefs = bpy.context.preferences.addons.get('cycles')
     if prefs:
         print('Cycles Addon Enabled:', True)
-        prefs.preferences.compute_device_type = "CUDA"
+        prefs.preferences.compute_device_type = 'CUDA'
         print('Compute Device Type Set To:',
               prefs.preferences.compute_device_type)
 
