@@ -36,12 +36,12 @@ public class FloraRenderingProblemServer {
   private static final int CPU_COUNT = Runtime.getRuntime().availableProcessors();
   private static final RenderingKnobs DEFAULT_KNOBS =
       RenderingKnobs.newBuilder()
-          .setResolutionX(RangeKnob.newBuilder().setStart(200).setEnd(1200).setStep(50))
-          .setResolutionY(RangeKnob.newBuilder().setStart(200).setEnd(1200).setStep(50))
-          .setAaSamples(RangeKnob.newBuilder().setStart(0).setEnd(5).setStep(1))
-          .setAoSamples(RangeKnob.newBuilder().setStart(0).setEnd(96).setStep(1))
+          .setResolutionX(RangeKnob.newBuilder().setStart(200).setEnd(1250).setStep(50))
+          .setResolutionY(RangeKnob.newBuilder().setStart(200).setEnd(1250).setStep(50))
+          .setAaSamples(RangeKnob.newBuilder().setStart(0).setEnd(6).setStep(1))
+          .setAoSamples(RangeKnob.newBuilder().setStart(0).setEnd(97).setStep(1))
           .setThreads(
-              RangeKnob.newBuilder().setStart((int) CPU_COUNT / 2).setEnd(CPU_COUNT).setStep(1))
+              RangeKnob.newBuilder().setStart((int) CPU_COUNT / 2).setEnd(CPU_COUNT + 1).setStep(1))
           .addAllFilter(List.of("BOX", "GAUSSIAN", "BLACKMAN_HARRIS"))
           .build();
 

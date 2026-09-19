@@ -1,24 +1,29 @@
-""" a thin client to talk to a flora server. """
+"""a thin client to talk to a flora server."""
+
 import os
 import sys
 import time
 from argparse import ArgumentParser
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+# Add the site-packages from Blender's own pip-installed packages
+sys.path.insert(
+    0, "/home/mamataliev/Documents/Projects/Research/jcarbon/service/src/main/python"
+)
+sys.path.insert(0, "/root/.local/lib/python3.13/site-packages")
+
 import bpy
-
-from jcarbon.report import to_dataframe
-from jcarbon.nvml.sampler import NvmlSampler
-
-from collector import DataCollector
-from flora_client import FloraRenderingProbemClient
-
 import numpy as np
 import pyRAPL
 from brisque import BRISQUE
+from collector import DataCollector
+from flora_client import FloraRenderingProbemClient
+from jcarbon.nvml.sampler import NvmlSampler
+from jcarbon.report import to_dataframe
 from PIL import Image
 from pypiqe import piqe
 
-ENERGY_SIGNAL = 'nvmlDeviceGetTotalEnergyConsumption'
+ENERGY_SIGNAL = "nvmlDeviceGetTotalEnergyConsumption"
 
 
 def create_scene(scene_path):
@@ -30,9 +35,9 @@ def create_scene(scene_path):
 
     # ---- Fix Color Management ----
     try:
-        scene.display_settings.display_device = 'sRGB'
-        scene.view_settings.view_transform = 'Standard'
-        scene.view_settings.look = 'None'
+        scene.display_settings.display_device = "sRGB"
+        scene.view_settings.view_transform = "Standard"
+        scene.view_settings.look = "None"
         scene.view_settings.exposure = 0.0
         print("Color management settings applied successfully.")
     except Exception as e:
@@ -44,7 +49,7 @@ def create_scene(scene_path):
 def create_output_dir(output_dir, scene_name, scene):
     output_dir = os.path.join(output_dir, scene_name)
     os.makedirs(output_dir, exist_ok=True)
-    scene.render.image_settings.file_format = 'PNG'
+    scene.render.image_settings.file_format = "PNG"
     return output_dir
 
 
@@ -109,19 +114,17 @@ def set_device(device):
 
 def parse_args():
     parser = ArgumentParser()
+    parser.add_argument("--background", action="store_true")
+    parser.add_argument("--python")
     parser.add_argument(
-        '-s',
-        '--scene',
-        help='path to blender scene file to render',
+        "-s",
+        "--scene",
+        help="path to blender scene file to render",
         type=str,
         required=True,
     )
     parser.add_argument(
-        '-p',
-        '--port',
-        help='port for the EC server',
-        type=int,
-        default=8980,
+        "-p", "--port", help="port for the EC server", type=int, default=8980
     )
     parser.add_argument(
         '-d',
@@ -135,7 +138,7 @@ def parse_args():
         '--output',
         help='directory to save rendered images',
         type=str,
-        default='rendering-data',
+        default="rendering-data",
     )
     return parser.parse_args()
 
@@ -144,8 +147,7 @@ def main():
     args = parse_args()
 
     scene_name = os.path.splitext(os.path.basename(args.scene))[0]
-    scene_path = os.path.join(os.path.dirname(
-        args.scene), f"{scene_name}.blend")
+    scene_path = os.path.join(os.path.dirname(args.scene), f"{scene_name}.blend")
     scene = create_scene(scene_path)
     output = create_output_dir(args.output, scene_name, scene)
 
