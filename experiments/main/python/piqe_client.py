@@ -1,7 +1,6 @@
 """a thin client to talk to a flora server."""
 
 import grpc
-
 from piqe_service_pb2 import ComputePiqeRequest
 from piqe_service_pb2_grpc import PiqeServiceStub
 
@@ -27,3 +26,4 @@ def main():
 
 
 if __name__ == "__main__":
+    main()
