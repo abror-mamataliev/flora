@@ -16,4 +16,4 @@ class DataCollector:
         })
 
     def write_data(self, path):
-        json.dump(self.data, open(path, 'w'))
+        json.dump(self.data, open(path, "w"))

@@ -1,3 +1,4 @@
+import logging
 from abc import ABC
 from time import time
 
@@ -5,12 +6,11 @@ import numpy as np
 from brisque import BRISQUE
 from PIL import Image
 from pynvml import (
-    nvmlInit, nvmlShutdown,
     nvmlDeviceGetCount, nvmlDeviceGetHandleByIndex,
     nvmlDeviceGetTotalEnergyConsumption
 )
 from pypiqe import piqe
-from pyRAPL import Measurement, setup as rapl_setup
+from pyRAPL import Measurement
 
 
 class Meter(ABC):
@@ -20,7 +20,7 @@ class Meter(ABC):
     def stop(self) -> None:
         pass
 
-    def read(self) -> float:
+    def read(self) -> dict[str, float]:
         raise NotImplementedError("Subclasses must implement this method.")
 
 
@@ -31,19 +31,12 @@ class TimeMeter(Meter):
     def stop(self) -> None:
         self.end_time = time()
 
-    def read(self) -> float:
-        if self.start_time is None:
-            raise ValueError("Meter has not been started.")
-
-        if self.end_time is None:
-            raise ValueError("Meter has not been stopped.")
-        
-        return self.end_time - self.start_time
+    def read(self) -> dict[str, float]:
+        return {"runtime": self.end_time - self.start_time}
 
 
 class RaplEnergyMeter(Meter):
     def __init__(self):
-        rapl_setup()
         self.measure = Measurement("measure")
 
     def start(self) -> None:
@@ -52,21 +45,28 @@ class RaplEnergyMeter(Meter):
     def stop(self) -> None:
         self.measure.end()
 
-    def read(self) -> float:
+    def read(self) -> dict[str, float]:
         result = self.measure.result
-        energy_uj = (
-            (sum(result.pkg) if result.pkg else 0) +
-            (sum(result.dram) if result.dram else 0)
-        )
-        return energy_uj / 1e6
+        if result.pkg is None:
+            logging.info("RAPL energy measurement is not available on this system.")
+            pkg_energy = 0
+        else:
+            pkg_energy = sum(result.pkg)
+
+        if result.dram is None:
+            logging.info("DRAM energy measurement is not available on this system.")
+            dram_energy = 0
+        else:
+            dram_energy = sum(result.dram)
+        
+        energy_uj = pkg_energy + dram_energy
+        return {"cpu_energy": energy_uj / 1e6}
 
 
 class NvmlEnergyMeter(Meter):
     def __init__(self):
-        nvmlInit()
         self.device_count = nvmlDeviceGetCount()
         self.devices = [nvmlDeviceGetHandleByIndex(i) for i in range(self.device_count)]
-        print(self.devices)
         self.energies = {}
 
     def start(self) -> None:
@@ -79,8 +79,8 @@ class NvmlEnergyMeter(Meter):
                 self.devices[device_index]
             ) - self.energies[device_index]
 
-    def read(self) -> float:
-        return sum(self.energies.values()) / 1e3
+    def read(self) -> dict[str, float]:
+        return {"gpu_energy": sum(self.energies.values()) / 1e3}
 
 
 class EnergyMeter(Meter):
@@ -98,19 +98,20 @@ class EnergyMeter(Meter):
         for meter in self.meters:
             meter.stop()
 
-    def read(self) -> float:
-        return sum(meter.read() for meter in self.meters)
+    def read(self) -> dict[str, float]:
+        return {"energy": sum(value for meter in self.meters for value in meter.read().values())}
 
 
 class ImageMeter(Meter):
-    def __init__(self, image_path: str):
-        self.image_path = image_path
+    def __init__(self, image_source: callable):
+        self.image_source = image_source
 
     def start(self) -> None:
         pass
 
     def stop(self) -> None:
-        img = Image.open(self.image_path).resize((1200, 1200)).convert("RGB")
+        image_path = self.image_source()
+        img = Image.open(image_path).resize((1200, 1200)).convert("RGB")
         self.img = np.array(img)
 
 
@@ -118,28 +119,29 @@ class PiqeMeter(ImageMeter):
     def __init__(self, image_path: str):
         super().__init__(image_path)
 
-    def read(self) -> float:
-        return piqe(self.img)[0]
+    def read(self) -> dict[str, float]:
+        return {"piqe": piqe(self.img)[0]}
 
 
 class BrisqueMeter(ImageMeter):
     def __init__(self, image_path: str):
         super().__init__(image_path)
 
-    def read(self) -> float:
-        return BRISQUE(url=False).score(self.img)
+
+    def read(self) -> dict[str, float]:
+        return {"brisque": BRISQUE(url=False).score(self.img)}
 
 
-class MultiMeter:
-    def __init__(self, image_path: str):
-        self.image_path = image_path
+class MultiMeter(Meter):
+    def __init__(self, image_source: callable):
+        self.image_source = image_source
         self.meters = [
             RaplEnergyMeter(),
             NvmlEnergyMeter(),
             EnergyMeter(),
             TimeMeter(),
-            PiqeMeter(image_path),
-            BrisqueMeter(image_path)
+            PiqeMeter(image_source),
+            BrisqueMeter(image_source)
         ]
 
     def start(self) -> None:
@@ -150,17 +152,7 @@ class MultiMeter:
         for meter in self.meters:
             meter.stop()
 
-    def set_image_path(self, image_path: str) -> None:
-        for meter in self.meters:
-            if isinstance(meter, ImageMeter):
-                meter.image_path = image_path
-
-    def read(self) -> dict:
+    def read(self) -> dict[str, float]:
         return {
-            "cpu_energy": self.meters[0].read(),
-            "gpu_energy": self.meters[1].read(),
-            "energy": self.meters[2].read(),
-            "runtime": self.meters[3].read(),
-            "piqe": self.meters[4].read(),
-            "brisque": self.meters[5].read()
+            key: value for meter in self.meters for key, value in meter.read().items()
         }

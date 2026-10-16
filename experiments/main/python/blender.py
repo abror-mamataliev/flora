@@ -22,7 +22,6 @@ class BlenderSceneRenderer:
         cycles = self.scene.cycles
         prefs = bpy.context.preferences.addons["cycles"].preferences
         self.scene.render.engine = "CYCLES"
-        rendering_device = None
         match self.device:
             case "cpu":
                 cycles.device = "CPU"
@@ -37,7 +36,7 @@ class BlenderSceneRenderer:
                 raise ValueError("Invalid device setting. Must be 'cpu' or 'gpu'.")
         
         # Configure devices
-        prefs.get_devices()
+        prefs.refresh_devices()
         if not prefs.devices:
             raise RuntimeError("No compute devices found.")
         
