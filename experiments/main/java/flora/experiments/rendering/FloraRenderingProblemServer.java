@@ -32,7 +32,7 @@ public class FloraRenderingProblemServer {
 
   private static final Integer PORT = Integer.valueOf(8980);
   private static final Path STATE_FILE_PATH = Path.of("/tmp", "state.json");
-  private static final Path RESULT_FILE_PATH = Path.of("/tmp", "result.json");
+  // private static final Path RESULT_FILE_PATH = Path.of("/tmp", "result.json");
   private static final int CPU_COUNT = Runtime.getRuntime().availableProcessors();
   private static final RenderingKnobs DEFAULT_KNOBS =
       RenderingKnobs.newBuilder()
@@ -57,8 +57,8 @@ public class FloraRenderingProblemServer {
   }
 
   private enum ModelKind {
-    NSGA2,
-    NSGA3,
+    NSGAII,
+    NSGAIII,
     MOEAD,
     IBEA,
   }
@@ -66,8 +66,8 @@ public class FloraRenderingProblemServer {
   private static final MOAlgorithm<Double, NumberSolution<Double>, NumberProblem<Double>>
       createModel(ModelKind model) {
     return switch (model) {
-      case NSGA2 -> new D_NSGAII();
-      case NSGA3 -> new D_NSGAIII();
+      case NSGAII -> new D_NSGAII();
+      case NSGAIII -> new D_NSGAIII();
       case MOEAD -> new D_MOEAD();
       case IBEA -> new D_IBEA();
     };
@@ -80,16 +80,12 @@ public class FloraRenderingProblemServer {
       System.exit(1);
     }
     ModelKind modelKind = ModelKind.valueOf(args[0]);
-
     final int maxEvaluations = Integer.parseInt(args[1]);
-
-    String workspace = System.getenv("BUILD_WORKSPACE_DIRECTORY");
-    Path baseDir = (workspace != null) ? Path.of(workspace) : Path.of("");
-    Path outputDir = baseDir.resolve(args[2]);
+    Path outputDir = Path.of(args[2]);
     Files.createDirectories(outputDir);
 
     Path stateFileOutputPath = outputDir.resolve("state.json");
-    Path resultFileOutputPath = outputDir.resolve("result.json");
+    // Path resultFileOutputPath = outputDir.resolve("result.json");
     
     logger.info(String.format("starting new flora server at localhost:%d", PORT));
 
@@ -115,10 +111,10 @@ public class FloraRenderingProblemServer {
                   }
                   model.get().saveState(STATE_FILE_PATH.toString());
                   model.get().saveState(stateFileOutputPath.toString());
-                  System.out.println("writing result to" + RESULT_FILE_PATH);
-                  JsonSceneUtil.writeResults(results.get(), RESULT_FILE_PATH);
-                  System.out.println("writing result to" + resultFileOutputPath);
-                  JsonSceneUtil.writeResults(results.get(), resultFileOutputPath);
+                  // System.out.println("writing result to" + RESULT_FILE_PATH);
+                  // JsonSceneUtil.writeResults(results.get(), RESULT_FILE_PATH);
+                  // System.out.println("writing result to" + resultFileOutputPath);
+                  // JsonSceneUtil.writeResults(results.get(), resultFileOutputPath);
                 } catch (Exception e) {
                   e.printStackTrace(System.err);
                 }
@@ -141,10 +137,10 @@ public class FloraRenderingProblemServer {
                 createMeters(serverImpl));
         results.set(problem);
         model1.execute(new Task<>(problem, StopCriterion.EVALUATIONS, maxEvaluations, 0, 0));
-        logger.info(String.format("writing result to %s", RESULT_FILE_PATH));
-        JsonSceneUtil.writeResults(problem, RESULT_FILE_PATH);
-        logger.info(String.format("writing result to %s", resultFileOutputPath));
-        JsonSceneUtil.writeResults(problem, resultFileOutputPath);
+        // logger.info(String.format("writing result to %s", RESULT_FILE_PATH));
+        // JsonSceneUtil.writeResults(problem, RESULT_FILE_PATH);
+        // logger.info(String.format("writing result to %s", resultFileOutputPath));
+        // JsonSceneUtil.writeResults(problem, resultFileOutputPath);
         model.get().saveState(STATE_FILE_PATH.toString());
         model.get().saveState(stateFileOutputPath.toString());
         break;
